@@ -266,25 +266,26 @@
   }
 
   .mob-btn {
-    width: 52px;
-    height: 52px;
+    width: 72px;
+    height: 72px;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 14px;
     color: var(--cyan);
-    font-size: 20px;
+    font-size: 28px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.1s;
+    transition: background 0.1s, transform 0.08s;
     font-family: 'Share Tech Mono', monospace;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
 
-  .mob-btn:active { background: #1a1a35; }
-  .mob-btn.wide { width: 110px; font-size: 13px; letter-spacing: 1px; }
+  .mob-btn:active { background: #1a1a35; transform: scale(0.93); }
+  .mob-btn.wide { width: 150px; font-size: 14px; letter-spacing: 2px; height: 60px; }
 
   @media (max-width: 600px) {
     body { justify-content: flex-start; padding: 8px 8px 16px; }
@@ -298,8 +299,8 @@
   }
 
   @media (max-width: 440px) {
-    .mob-btn { width: 44px; height: 44px; font-size: 18px; }
-    .mob-btn.wide { width: 92px; }
+    .mob-btn { width: 60px; height: 60px; font-size: 24px; }
+    .mob-btn.wide { width: 124px; height: 54px; }
   }
 </style>
 </head>
