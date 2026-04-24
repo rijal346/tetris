@@ -253,16 +253,16 @@
 
   /* MOBILE BUTTONS */
   .mobile-controls {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    margin-top: 4px;
+    justify-content: center;
+    gap: 12px;
   }
 
   .mobile-row {
     display: flex;
-    gap: 6px;
+    gap: 16px;
   }
 
   .mob-btn {
@@ -288,19 +288,18 @@
   .mob-btn.wide { width: 150px; font-size: 14px; letter-spacing: 2px; height: 60px; }
 
   @media (max-width: 600px) {
-    body { justify-content: flex-start; padding: 8px 8px 16px; }
-    .game-container { flex-direction: column; align-items: center; gap: 8px; width: 100%; }
-    .left-panel { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 8px; }
-    .left-panel .panel-box { flex: 1; min-width: 70px; padding: 10px; }
-    .left-panel .panel-value { font-size: 16px; }
+    body { justify-content: flex-start; padding: 44px 6px 16px; overflow-y: auto; }
+    .game-container { flex-direction: row; align-items: flex-start; gap: 8px; width: 100%; flex-wrap: nowrap; }
+    .left-panel { flex-direction: column; width: 80px; gap: 6px; flex-shrink: 0; }
+    .left-panel .panel-box { padding: 8px; }
+    .left-panel .panel-value { font-size: 14px; }
+    .left-panel .panel-label { font-size: 8px; }
     .left-panel .controls { display: none; }
-    .board-wrap { width: 100%; max-width: 360px; }
-    .mobile-controls { display: flex; width: 100%; max-width: 360px; margin-top: 8px; }
-  }
-
-  @media (max-width: 440px) {
-    .mob-btn { width: 60px; height: 60px; font-size: 24px; }
-    .mob-btn.wide { width: 124px; height: 54px; }
+    .board-wrap { flex: 1; min-width: 0; }
+    .mobile-controls { flex-shrink: 0; gap: 8px; }
+    .mob-btn { width: 52px; height: 52px; font-size: 20px; border-radius: 10px; }
+    .mob-btn.wide { width: 108px; font-size: 12px; height: 48px; }
+    .mobile-row { gap: 8px; }
   }
 </style>
 </head>
@@ -351,20 +350,22 @@
     </div>
   </div>
 
-</div>
+  <!-- MOBILE CONTROLS (kanan board) -->
+  <div class="mobile-controls" id="mobileControls">
+    <div class="mobile-row">
+      <button class="mob-btn" id="rotBtn">↺</button>
+      <button class="mob-btn" id="pauseBtn">⏸</button>
+    </div>
+    <div class="mobile-row">
+      <button class="mob-btn" id="leftBtn">←</button>
+      <button class="mob-btn" id="downBtn">↓</button>
+      <button class="mob-btn" id="rightBtn">→</button>
+    </div>
+    <div class="mobile-row">
+      <button class="mob-btn wide" id="dropBtn">DROP</button>
+    </div>
+  </div>
 
-<div class="mobile-controls" id="mobileControls">
-  <div class="mobile-row">
-    <button class="mob-btn" id="rotBtn">↺</button>
-  </div>
-  <div class="mobile-row">
-    <button class="mob-btn" id="leftBtn">←</button>
-    <button class="mob-btn" id="downBtn">↓</button>
-    <button class="mob-btn" id="rightBtn">→</button>
-  </div>
-  <div class="mobile-row">
-    <button class="mob-btn wide" id="dropBtn">DROP</button>
-  </div>
 </div>
 
 <script>
@@ -596,7 +597,18 @@ function drawNext() {
 // ── INPUT ──
 function moveLeft()  { if (!state?.over && !state?.paused && !collide(state.current.cells, state.current.x - 1, state.current.y, state.board)) { state.current.x--; draw(); } }
 function moveRight() { if (!state?.over && !state?.paused && !collide(state.current.cells, state.current.x + 1, state.current.y, state.board)) { state.current.x++; draw(); } }
-function moveDown()  { if (!state?.over && !state?.paused) { if (!collide(state.current.cells, state.current.x, state.current.y + 1, state.board)) { state.current.y++; draw(); } else { clearInterval(gameLoop); landPiece(); draw(); } } }
+function moveDown()  {
+  if (!state?.over && !state?.paused) {
+    if (!collide(state.current.cells, state.current.x, state.current.y + 1, state.board)) {
+      state.current.y++;
+      draw();
+    } else {
+      clearInterval(gameLoop);
+      landPiece();
+      draw();
+    }
+  }
+}
 function hardDrop()  {
   if (!state?.over && !state?.paused) {
     const gy = ghostY(state.current, state.board);
@@ -640,19 +652,53 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Mobile buttons
-document.getElementById('leftBtn').addEventListener('touchstart', e => { e.preventDefault(); moveLeft(); }, {passive:false});
-document.getElementById('rightBtn').addEventListener('touchstart', e => { e.preventDefault(); moveRight(); }, {passive:false});
-document.getElementById('downBtn').addEventListener('touchstart', e => { e.preventDefault(); moveDown(); }, {passive:false});
-document.getElementById('rotBtn').addEventListener('touchstart', e => { e.preventDefault(); rotatePiece(); }, {passive:false});
-document.getElementById('dropBtn').addEventListener('touchstart', e => { e.preventDefault(); hardDrop(); }, {passive:false});
+// Mobile hold-to-repeat
+let _holdTimer = null;
+let _holdRepeat = null;
 
-// Also click for desktop testing of mobile buttons
-document.getElementById('leftBtn').onclick = moveLeft;
-document.getElementById('rightBtn').onclick = moveRight;
-document.getElementById('downBtn').onclick = moveDown;
-document.getElementById('rotBtn').onclick = rotatePiece;
-document.getElementById('dropBtn').onclick = hardDrop;
+function _startHold(fn) {
+  fn(); // langsung jalankan sekali
+  _holdTimer = setTimeout(function() {
+    _holdRepeat = setInterval(function() {
+      fn();
+    }, 75);
+  }, 150);
+}
+
+function _stopHold() {
+  if (_holdTimer)  { clearTimeout(_holdTimer);   _holdTimer = null; }
+  if (_holdRepeat) { clearInterval(_holdRepeat); _holdRepeat = null; }
+}
+
+function bindHold(id, fn) {
+  var el = document.getElementById(id);
+  el.addEventListener('touchstart',  function(e) { e.preventDefault(); _stopHold(); _startHold(fn); }, {passive: false});
+  el.addEventListener('touchend',    function(e) { e.preventDefault(); _stopHold(); }, {passive: false});
+  el.addEventListener('touchcancel', function(e) { e.preventDefault(); _stopHold(); }, {passive: false});
+  el.addEventListener('mousedown',   function(e) { _stopHold(); _startHold(fn); });
+  el.addEventListener('mouseup',     function(e) { _stopHold(); });
+  el.addEventListener('mouseleave',  function(e) { _stopHold(); });
+}
+
+function bindTap(id, fn) {
+  var el = document.getElementById(id);
+  el.addEventListener('touchstart', function(e) { e.preventDefault(); fn(); }, {passive: false});
+  el.addEventListener('click', fn);
+}
+
+function togglePause() {
+  if (!state || state.over) return;
+  state.paused = !state.paused;
+  var btn = document.getElementById('pauseBtn');
+  btn.textContent = state.paused ? '▶' : '⏸';
+}
+
+bindHold('leftBtn',  moveLeft);
+bindHold('rightBtn', moveRight);
+bindHold('downBtn',  moveDown);
+bindTap('rotBtn',    rotatePiece);
+bindTap('dropBtn',   hardDrop);
+bindTap('pauseBtn',  togglePause);
 
 window.addEventListener('resize', resize);
 resize();
