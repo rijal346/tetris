@@ -287,15 +287,19 @@
   .mob-btn.wide { width: 110px; font-size: 13px; letter-spacing: 1px; }
 
   @media (max-width: 600px) {
-    .left-panel { width: 100px; }
-    .left-panel .panel-value { font-size: 17px; }
-    .controls { display: none; }
-    .mobile-controls { display: flex; }
+    body { justify-content: flex-start; padding: 8px 8px 16px; }
+    .game-container { flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+    .left-panel { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 8px; }
+    .left-panel .panel-box { flex: 1; min-width: 70px; padding: 10px; }
+    .left-panel .panel-value { font-size: 16px; }
+    .left-panel .controls { display: none; }
+    .board-wrap { width: 100%; max-width: 360px; }
+    .mobile-controls { display: flex; width: 100%; max-width: 360px; margin-top: 8px; }
   }
 
   @media (max-width: 440px) {
-    .game-container { gap: 10px; }
-    .left-panel { width: 88px; }
+    .mob-btn { width: 44px; height: 44px; font-size: 18px; }
+    .mob-btn.wide { width: 92px; }
   }
 </style>
 </head>
@@ -348,20 +352,17 @@
 
 </div>
 
-<!-- Mobile controls -->
-<div style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:100;">
-  <div class="mobile-controls" id="mobileControls">
-    <div class="mobile-row">
-      <button class="mob-btn" id="rotBtn">↺</button>
-    </div>
-    <div class="mobile-row">
-      <button class="mob-btn" id="leftBtn">←</button>
-      <button class="mob-btn" id="downBtn">↓</button>
-      <button class="mob-btn" id="rightBtn">→</button>
-    </div>
-    <div class="mobile-row">
-      <button class="mob-btn wide" id="dropBtn">DROP</button>
-    </div>
+<div class="mobile-controls" id="mobileControls">
+  <div class="mobile-row">
+    <button class="mob-btn" id="rotBtn">↺</button>
+  </div>
+  <div class="mobile-row">
+    <button class="mob-btn" id="leftBtn">←</button>
+    <button class="mob-btn" id="downBtn">↓</button>
+    <button class="mob-btn" id="rightBtn">→</button>
+  </div>
+  <div class="mobile-row">
+    <button class="mob-btn wide" id="dropBtn">DROP</button>
   </div>
 </div>
 
@@ -374,7 +375,10 @@ const nextCanvas = document.getElementById('nextCanvas');
 const nextCtx = nextCanvas.getContext('2d');
 
 function resize() {
-  const maxH = Math.min(window.innerHeight - 160, 560);
+  const isMobile = window.innerWidth <= 600;
+  const maxH = isMobile
+    ? Math.min(window.innerHeight - 280, 400)
+    : Math.min(window.innerHeight - 160, 560);
   CELL = Math.floor(maxH / ROWS);
   canvas.width = COLS * CELL;
   canvas.height = ROWS * CELL;
