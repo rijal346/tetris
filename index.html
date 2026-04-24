@@ -58,33 +58,33 @@
     left: 0;
     right: 0;
     text-align: center;
-    padding: 6px 0;
+    padding: 10px 0;
     font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 6px;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 10px;
     text-transform: uppercase;
-    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.08), transparent);
-    border-bottom: 1px solid rgba(0,245,255,0.12);
-    color: rgba(0,245,255,0.45);
+    background: linear-gradient(90deg, transparent, rgba(0,245,255,0.12), transparent);
+    border-bottom: 1px solid rgba(0,245,255,0.3);
     z-index: 1000;
     pointer-events: none;
     user-select: none;
   }
 
   .watermark span {
-    background: linear-gradient(90deg, var(--cyan), var(--purple), var(--cyan));
-    background-size: 200%;
+    background: linear-gradient(90deg, var(--cyan), #fff, var(--purple), var(--cyan));
+    background-size: 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmer 3s linear infinite;
-    opacity: 0.6;
+    animation: shimmer 2.5s linear infinite;
+    text-shadow: 0 0 20px var(--cyan);
+    filter: drop-shadow(0 0 8px var(--cyan));
   }
 
   @keyframes shimmer {
     0% { background-position: 0% }
-    100% { background-position: 200% }
+    100% { background-position: 300% }
   }
 
   .game-container {
